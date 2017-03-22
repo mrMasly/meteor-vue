@@ -72,7 +72,9 @@ Package.registerBuildPlugin({
 
 
 Npm.depends({
-  'lodash.omit': '4.5.0'
+  'lodash.omit': '4.5.0',
+  'lodash.union': '4.6.0',
+  'lodash.sortby': '4.7.0'
 });
 
 

@@ -1,4 +1,6 @@
-import _ from 'lodash'
+# import _ from 'lodash'
+import union from 'lodash.union'
+import sortBy from 'lodash.sortby'
 
 allow = []
 registered = []
@@ -7,14 +9,14 @@ _startup = no
 Meteor.startup ->
   _startup = yes
   for key, value of Meteor.allow
-    if _.isString value
+    if typeof value is 'string'
       value = groups: [value]
-    else if _.isArray value
+    else if typeof value is 'array'
       value = groups: value
     value.users ?= []
     value.groups ?= []
     allow.push rule: key, access: value
-    allow = _.sortBy allow, (a) -> - a.rule.length
+    allow = sortBy allow, (a) -> - a.rule.length
 
 
 # запускает функцию после запуска метеора
@@ -47,10 +49,10 @@ Meteor.registerModule = (module) ->
 
       for a in allow
         if module.name.indexOf(a.rule) is 0
-          unless _.isEmpty a.access.users
-            module.allow.users = _.union module.allow.users, a.access.users
-          unless _.isEmpty a.access.groups
-            module.allow.groups = _.union module.allow.groups, a.access.groups
+          if a.access.users.length isnt 0
+            module.allow.users = union module.allow.users, a.access.users
+          if a.access.groups.length isnt 0
+            module.allow.groups = union module.allow.groups, a.access.groups
           break
 
       # доступ к модулю
@@ -66,7 +68,7 @@ Meteor.registerModule = (module) ->
           return yes
         if user.username in @allow.users
           return yes
-        if _.isArray user.groups
+        if typeof user.groups is 'array'
           for group in user.groups
             if group in @allow.groups
               return yes
