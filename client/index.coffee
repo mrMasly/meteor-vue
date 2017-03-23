@@ -1,5 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import VueMeta from 'vue-meta'
+
+Vue.use VeuMeta, keyName: 'meta'
+
+__meteor_runtime_config__.VUE_DEV_SERVER_URL = location.hostname+':'+(Number(location.port)+3)
 
 Meteor.startup ->
   router = new VueRouter
@@ -11,6 +16,9 @@ Meteor.startup ->
   Meteor.vue = new Vue
     router: router
     render: (h) -> h Meteor.rootComponent
+    meta: [
+      { charset: 'utf-8' }
+    ]
   Meteor.vue.$mount '#vie-root'
 
 

@@ -101,7 +101,8 @@ Package.onUse(function(api) {
     'plugins/subscribe.js',
     'plugins/call.coffee',
     'plugins/router.coffee',
-    'client/index.coffee'
+    'client/index.coffee',
+    'client/hot.coffee'
   ], 'client');
 
   api.addFiles([
