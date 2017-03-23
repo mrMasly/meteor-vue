@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import { resolve, dirname } from 'path'
 
+
 Plugin = {}
 
 Plugin.install = (vue, options) ->
