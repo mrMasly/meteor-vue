@@ -1,6 +1,6 @@
 Package.describe({
   name: 'mrmasly:vue',
-  version: '0.0.2',
+  version: '0.1.0',
   summary: 'Akryum:vue-meteor all in one',
   git: 'https://github.com/mrMasly/meteor-vue',
   documentation: 'README.md'
@@ -82,28 +82,20 @@ Package.onUse(function(api) {
   api.versionsFrom('1.4.3.2');
   api.use('ecmascript@0.6.3');
   api.use('coffeescript@1.12.3_1');
-  api.use('tmeasday:check-npm-versions@0.3.1');
-
+  api.use('akryum:npm-check@0.0.2');
   api.use('isobuild:compiler-plugin@1.0.0');
   api.use('akryum:vue-component-dev-server@0.0.5');
   api.use('akryum:vue-component-dev-client@0.2.8');
 
-
-
-  api.mainModule('check-npm.js', 'server')
-
+  api.use('akryum:vue-ssr@0.1.0');
 
   api.addFiles([
-    'common/modules.coffee'
-  ], ['client', 'server']);
-
-  api.addFiles([
+    'common/modules.coffee',
+    'common/startup.coffee',
     'plugins/subscribe.js',
     'plugins/call.coffee',
-    'plugins/router.coffee',
-    'client/index.coffee',
-    'client/hot.coffee'
-  ], 'client');
+    'plugins/router.coffee'
+  ], ['client', 'server']);
 
   api.addFiles([
     'server/index.coffee',

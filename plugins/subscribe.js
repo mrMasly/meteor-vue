@@ -8,6 +8,7 @@ function defaultSubscription(...args) {
 Plugin = {
   install(Vue, options) {
 
+    const isServer = Vue.prototype.$isServer
     const vueVersion = parseInt(Vue.version.charAt(0));
 
     const { defineReactive } = Vue.util;
@@ -55,80 +56,101 @@ Plugin = {
 
       if (meteor) {
 
-        const data = Object.assign({}, omit(meteor, [
-          'subscribe',
-          'data',
-          'server'
-        ]), meteor.data);
-
-
-        // Reactive data
-        if (data) {
-          for (let key in data) {
-            ((key, options) => {
-              let func, vueParams;
-              if (typeof options === 'function') {
-                func = options.bind(this);
-              } else if (typeof options.update === 'function') {
-                func = options.update.bind(this);
-                if (typeof options.params === 'function') {
-                  vueParams = options.params.bind(this);
-                }
-              } else {
-                throw Error('You must provide either a function or an object with the update() method.');
-              }
-
-              this.$data[key] = null;
-              defineReactive(this, key, null);
-
-              let computation;
-
-              let autorun = (params) => {
-                computation = this.$autorun(() => {
-                  let result = func(params);
-                  if (result && typeof result.fetch === 'function') {
-                    result = result.fetch();
-                  }
-                  if(Vue.config.meteor.freeze) {
-                    result = Object.freeze(result);
-                  }
-                  this[key] = result;
-                });
-              }
-
-              if (vueParams) {
-                this.$watch(vueParams, (params) => {
-                  if (computation) {
-                    this.$stopHandle(computation);
-                  }
-                  autorun(params);
-                }, {
-                  immediate: true,
-                  deep: !!options.deep
-                });
-              } else {
-                autorun();
-              }
-            })(key, data[key]);
-          }
+        let ssr = true
+        if (typeof meteor.$ssr !== 'undefined') {
+          ssr = meteor.$ssr
         }
 
-        // Subscriptions
-        if (meteor.subscribe) {
-          for (let key in meteor.subscribe) {
-            ((key, options) => {
-              let subscribe = params => this.$subscribe(key, ...params);
+        if (!isServer || ssr) {
+          // Subscriptions
+          if (meteor.subscribe || meteor.$subscribe) {
+            const subscribeOptions = Object.assign({}, meteor.subscribe, meteor.$subscribe)
+            for (let key in subscribeOptions) {
+              ((key, options) => {
+                let subscribe = params => this.$subscribe(key, ...params);
 
-              if (typeof options === 'function') {
-                this.$watch(options, params => {
-                  subscribe(params);
-                }, {
-                  immediate: true,
-                })
-              } else {
-                subscribe(options);
+                if (typeof options === 'function') {
+                  if (isServer) {
+                    subscribe(options.bind(this)())
+                  } else {
+                    this.$watch(options, params => {
+                      subscribe(params);
+                    }, {
+                      immediate: true,
+                    })
+                  }
+                } else {
+                  subscribe(options);
+                }
+              })(key, meteor.subscribe[key]);
+            }
+          }
+
+          const data = Object.assign({}, omit(meteor, [
+            'subscribe',
+            'data',
+            'server' //mrMasly
+          ]), meteor.data);
+
+          // Reactive data
+          if (data) {
+            for (let key in data) {
+              if (key.charAt(0) !== '$') {
+                ((key, options) => {
+                  let func, vueParams;
+                  if (typeof options === 'function') {
+                    func = options.bind(this);
+                  } else if (typeof options.update === 'function') {
+                    func = options.update.bind(this);
+                    if (typeof options.params === 'function') {
+                      vueParams = options.params.bind(this);
+                    }
+                  } else {
+                    throw Error('You must provide either a function or an object with the update() method.');
+                  }
+
+                  this.$data[key] = null;
+                  defineReactive(this, key, null);
+
+                  let computation;
+
+                  const run = (params) => {
+                    let result = func(params);
+                    if (result && typeof result.fetch === 'function') {
+                      result = result.fetch();
+                    }
+                    if(Vue.config.meteor.freeze) {
+                      result = Object.freeze(result);
+                    }
+                    this[key] = result;
+                  }
+
+                  const autorun = (params) => {
+                    computation = this.$autorun(() => {
+                      run(params)
+                    });
+                  }
+
+                  if (vueParams) {
+                    if (isServer) {
+                      autorun(vueParams.bind(this)())
+                    } else {
+                      this.$watch(vueParams, (params) => {
+                        if (computation) {
+                          this.$stopHandle(computation);
+                        }
+                        autorun(params);
+                      }, {
+                        immediate: true,
+                        deep: !!options.deep
+                      });
+                    }
+                  } else {
+                    autorun();
+                  }
+                })(key, data[key]);
               }
-            })(key, meteor.subscribe[key]);
+            }
           }
         }
       }
@@ -157,59 +179,73 @@ Plugin = {
 
       methods: {
         $subscribe(...args) {
-          if(args.length > 0) {
-            const key = args[0];
-            const oldSub = this._subs[key]
-
-            /*** mrMasly ***/
-            if (this.$options.meteor.server) {
-              let server = this.$options.meteor.server
-              let module = this.$options.module
-              let name = args.shift();
-              let _name;
-              if(typeof server === 'string') {
-                _name = resolve(dirname(module.id), server)
-                  .replace('.coffee', '')
-                  .replace('/index.js', '');
-              } else {
-                _name = module.id.split('.vue')[0] + '.vue';
+          if (args.length > 0) {
+            /* if (isServer) {
+              return {
+                isReady: () => true,
+                stop () {},
               }
+            } else { */
+              const key = args[0];
+              const oldSub = this._subs[key]
 
-              name = `${_name}--publish--${name}`;
-              args.unshift(name);
-            }
-            /*** mrMasly ***/
-
-            let handle = Vue.config.meteor.subscribe.apply(this, args);
-            this._trackerHandles.push(handle);
-            this._subs[key] = handle
-
-            // Readiness
-            if(typeof handle.ready === 'function') {
-              defineReactive(this.$subReady, key, false);
-              if (this._subsAutorun[key]) {
-                this._subsAutorun[key].stop();
-              }
-              const autorun = this.$autorun(() => {
-                const ready = this.$subReady[key] = handle.ready();
-                // Wait for the new subscription to be ready before stoping the old one
-                if (ready && oldSub) {
-                  this.$stopHandle(oldSub)
+              /*** mrMasly ***/
+              if (this.$options.meteor.server) {
+                let server = this.$options.meteor.server
+                let module = this.$options.module
+                let name = args.shift();
+                let _name;
+                if(typeof server === 'string') {
+                  _name = resolve(dirname(module.id), server)
+                    .replace('.coffee', '')
+                    .replace('/index.js', '');
+                } else {
+                  _name = module.id.split('.vue')[0] + '.vue';
                 }
-              });
-              this._subsAutorun[key] = autorun;
-            }
 
-            return handle;
+                name = `${_name}--publish--${name}`;
+                args.unshift(name);
+              }
+              /*** mrMasly ***/
+
+
+              let handle = Vue.config.meteor.subscribe.apply(this, args);
+              this._trackerHandles.push(handle);
+              this._subs[key] = handle
+
+              // Readiness
+              if(typeof handle.ready === 'function') {
+                defineReactive(this.$subReady, key, false);
+                if (this._subsAutorun[key]) {
+                  this._subsAutorun[key].stop();
+                }
+                const autorun = this.$autorun(() => {
+                  const ready = this.$subReady[key] = handle.ready();
+                  // Wait for the new subscription to be ready before stoping the old one
+                  if (ready && oldSub) {
+                    this.$stopHandle(oldSub)
+                  }
+                });
+                this._subsAutorun[key] = autorun;
+              }
+
+              return handle;
+            // }
           } else {
             throw new Error('You must provide the publication name to $subscribe.');
           }
         },
 
         $autorun(reactiveFunction) {
-          let handle = Tracker.autorun(reactiveFunction);
-          this._trackerHandles.push(handle);
-          return handle;
+          /* if (isServer) {
+            return {
+              stop () {},
+            }
+          } else { */
+            let handle = Tracker.autorun(reactiveFunction);
+            this._trackerHandles.push(handle);
+            return handle;
+          // }
         },
 
         $stopHandle(handle) {
