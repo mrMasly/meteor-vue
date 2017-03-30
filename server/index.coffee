@@ -1,4 +1,7 @@
 
+global.window = {}
+
+
 Meteor.startup =>
   Module = module.parent
   for name, mod of Module.childrenById

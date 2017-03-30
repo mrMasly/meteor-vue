@@ -89,6 +89,10 @@ Package.onUse(function(api) {
 
   api.use('akryum:vue-ssr@0.1.0');
 
+  api.addAssets([
+    'public/gears.svg'
+  ], 'client');
+
   api.addFiles([
     'common/modules.coffee',
     'common/startup.coffee',
