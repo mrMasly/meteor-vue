@@ -3,11 +3,10 @@ import VueRouter from 'vue-router'
 import VueMeta from 'vue-meta'
 Vue.use VueRouter
 
-Vue.use VueMeta,
-  keyName: 'head'
-
 if Meteor.isClient
   __meteor_runtime_config__.VUE_DEV_SERVER_URL = location.hostname+':'+(Number(location.port)+3)
+  Vue.use VueMeta,
+    keyName: 'head'
 
 createApp = ->
 
@@ -20,12 +19,6 @@ createApp = ->
   options =
     el: '#app'
     router: router
-    head:
-      meta: [
-        { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
-        { name: 'apple-mobile-web-app-capable', content: 'yes' }
-      ]
     render: (h) -> h root
 
   if Meteor.isClient and Meteor.ssr is no
@@ -33,6 +26,12 @@ createApp = ->
       el = document.getElementById 'mrmasly-vue-loading'
       document.body.removeChild el
     , 500
+    options.head =
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+        { name: 'apple-mobile-web-app-capable', content: 'yes' }
+      ]
   if Meteor.Store
     options.store = Meteor.Store
 
