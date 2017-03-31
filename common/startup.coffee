@@ -36,7 +36,9 @@ createApp = ->
   if Meteor.Store
     options.store = Meteor.Store
 
-  app: new Vue options
+  Meteor.Vue = new Vue options
+
+  app: Meteor.Vue
   router: router
 
 
