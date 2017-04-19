@@ -1,6 +1,6 @@
 Package.describe({
   name: 'mrmasly:vue',
-  version: '0.1.4',
+  version: '0.1.5',
   summary: 'Akryum:vue-meteor all in one',
   git: 'https://github.com/mrMasly/meteor-vue',
   documentation: 'README.md'
@@ -100,7 +100,6 @@ Package.onUse(function(api) {
     'plugins/subscribe.js',
     'plugins/call.coffee',
     'plugins/router.coffee',
-    'plugins/moment.coffee',
   ], ['client', 'server']);
 
   api.addFiles([
