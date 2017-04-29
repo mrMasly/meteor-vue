@@ -1,12 +1,13 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import VueMeta from 'vue-meta'
+import VueMeta from './vue-meta.js'
 Vue.use VueRouter
 
 if Meteor.isClient
   __meteor_runtime_config__.VUE_DEV_SERVER_URL = location.hostname+':'+(Number(location.port)+3)
-  Vue.use VueMeta,
-    keyName: 'head'
+
+Vue.use VueMeta,
+  keyName: 'head'
 
 createApp = ->
 
@@ -20,6 +21,13 @@ createApp = ->
     el: '#app'
     router: router
     render: (h) -> h root
+
+  options.head =
+    meta: [
+      { charset: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+      { name: 'apple-mobile-web-app-capable', content: 'yes' }
+    ]
 
   if Meteor.isClient and Meteor.ssr is no
     options.mounted = -> setTimeout =>

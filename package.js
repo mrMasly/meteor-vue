@@ -1,6 +1,6 @@
 Package.describe({
   name: 'mrmasly:vue',
-  version: '0.1.5',
+  version: '0.2.0',
   summary: 'Akryum:vue-meteor all in one',
   git: 'https://github.com/mrMasly/meteor-vue',
   documentation: 'README.md'
@@ -35,7 +35,7 @@ Package.registerBuildPlugin({
     'source-map-merger': '0.2.0',
     'generate-source-map': '0.0.5',
     'autoprefixer': '6.7.5',
-    'vue-template-compiler': '2.2.6',
+    'vue-template-compiler': '2.3.0',
     'vue-template-es2015-compiler': '1.5.1',
   }
 });
@@ -74,7 +74,13 @@ Package.registerBuildPlugin({
 Npm.depends({
   'lodash.omit': '4.5.0',
   'lodash.union': '4.6.0',
-  'lodash.sortby': '4.7.0'
+  'lodash.sortby': '4.7.0',
+
+  // Vue ssr
+  'vue-server-renderer': '2.3.0',
+  'vue-ssr-html-stream': '2.2.0',
+  'cookie-parser': '1.4.1',
+  'cheerio': '0.20.0'
 });
 
 
@@ -82,13 +88,13 @@ Package.onUse(function(api) {
   api.versionsFrom('1.4.3.2');
   api.use('ecmascript@0.6.3');
   api.use('coffeescript@1.12.3_1');
-  api.use('akryum:npm-check@0.0.2');
+  api.use('akryum:npm-check@0.0.3');
   api.use('isobuild:compiler-plugin@1.0.0');
   api.use('meteorhacks:async@1.0.0');
   api.use('akryum:vue-component-dev-server@0.0.5');
   api.use('akryum:vue-component-dev-client@0.2.8');
 
-  api.use('akryum:vue-ssr@0.1.0');
+  // api.use('akryum:vue-ssr@0.1.0');
 
   api.addAssets([
     'public/gears.svg'
@@ -107,5 +113,21 @@ Package.onUse(function(api) {
     'server/methods.coffee',
     'server/publish.coffee'
   ], 'server');
+
+  // Vue ssr
+  // api.versionsFrom('1.4.3.1');
+  api.use([
+    'tracker',
+    'minimongo',
+    'underscore',
+    'webapp',
+    'mongo',
+    'routepolicy',
+    'url',
+    'staringatlights:fast-render@2.16.2',
+    'staringatlights:inject-data@2.0.4',
+  ]);
+  api.mainModule('ssr/index.js', 'server');
+  api.export('VueSSR', 'server');
 
 });

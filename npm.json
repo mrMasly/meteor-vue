@@ -1,9 +1,9 @@
 {
   "dependencies": {
-    "vue": "^2.2.6",
-    "vue-meta": "^0.5.5",
+    "vue": "^2.3.0",
+    "vue-meta": "0.5.5",
     "vue-router": "^2.3.1",
-    "vue-server-renderer": "^2.2.6",
+    "vue-server-renderer": "^2.3.0",
     "vue-ssr-html-stream": "^2.2.0"
   }
 }

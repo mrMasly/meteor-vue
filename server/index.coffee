@@ -1,5 +1,5 @@
 
-global.window = {}
+# global.window = {}
 
 
 Meteor.startup =>
