@@ -128,9 +128,6 @@ Meteor.bindEnvironment(function () {
 
                 res.write = patchResWrite(res.write, VueSSR.template.replace(VueSSR.outlet, html), meta)
 
-                // meta = app.$meta().inject();
-                // res.write = addMeta(res.write, meta)
-
                 next()
               },
             )
@@ -163,18 +160,13 @@ function patchResWrite(originalWrite, html, meta) {
         data = data.replace('<body>', '<body>' + html);
       }
     }
-
     originalWrite.call(this, data);
   };
 }
 
 function addMeta(data, meta) {
 
-  const $ = Cheerio.load(data, {
-    decodeEntities: false
-  });
-
-  head = $('head')
+  head = ""
   head += "\n"+meta.meta.text()
   head += "\n"+meta.title.text()
   head += "\n"+meta.link.text()
@@ -188,8 +180,7 @@ function addMeta(data, meta) {
     });
   }
 
-  data = data.replace('<head>', '<head>'+head)
-
+  data = data.replace('</head>', head+'</head>')
   return data
 }
 
