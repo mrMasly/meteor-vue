@@ -70,7 +70,7 @@ Meteor.startup ->
   else
     createApp()
 
-
+Meteor.Components = []
 mapModules = ->
   routes = []
   root
@@ -79,6 +79,7 @@ mapModules = ->
     Meteor.registerModule mod
     continue if id.indexOf('.vue') is -1
     component = mod.exports.default
+    Meteor.Components.push component
     root = component if component.root?
     continue unless component.route?
     route = component.route
