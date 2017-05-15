@@ -72,6 +72,7 @@ Meteor.startup ->
 
 Meteor.Components = []
 mapModules = ->
+  components = []
   routes = []
   root
   Module = module.parent
@@ -79,11 +80,18 @@ mapModules = ->
     Meteor.registerModule mod
     continue if id.indexOf('.vue') is -1
     component = mod.exports.default
-    Meteor.Components.push component
+    components.push component
     root = component if component.root?
     continue unless component.route?
     route = component.route
     route.component = component
     route.module = component.module
     routes.push route
+
+  names = []
+  for one in components
+    unless one.name in names
+      Meteor.Components.push one
+      names.push one.name
+      
   return { routes, root }
