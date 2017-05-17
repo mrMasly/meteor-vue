@@ -13,6 +13,15 @@ createApp = ->
 
   { routes, root } = mapModules()
 
+  defaultRoute = null
+  for route in routes
+    if route.default
+      defaultRoute =
+        path: '/'
+        redirect: name: route.name
+
+  routes.push defaultRoute if defaultRoute?
+
   router = new VueRouter
     routes: routes
     mode: 'history'
