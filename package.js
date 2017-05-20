@@ -1,6 +1,6 @@
 Package.describe({
   name: 'mrmasly:vue',
-  version: '0.2.6',
+  version: '0.2.7',
   summary: 'Akryum:vue-meteor all in one',
   git: 'https://github.com/mrMasly/meteor-vue',
   documentation: 'README.md'
@@ -35,7 +35,7 @@ Package.registerBuildPlugin({
     'source-map-merger': '0.2.0',
     'generate-source-map': '0.0.5',
     'autoprefixer': '6.7.5',
-    'vue-template-compiler': '2.3.0',
+    'vue-template-compiler': '2.3.3',
     'vue-template-es2015-compiler': '1.5.1',
   }
 });
@@ -77,7 +77,7 @@ Npm.depends({
   'lodash.sortby': '4.7.0',
 
   // Vue ssr
-  'vue-server-renderer': '2.3.0',
+  'vue-server-renderer': '2.3.3',
   'vue-ssr-html-stream': '2.2.0',
   'cookie-parser': '1.4.1',
   'cheerio': '0.20.0'
