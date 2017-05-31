@@ -14,6 +14,7 @@ import patchSubscribeData from './data'
 // const VueServerRenderer = require('vue-server-renderer')
 
 function IsAppUrl (req) {
+
   var url = req.url
   if (url === '/favicon.ico' || url === '/robots.txt') {
     return false
@@ -27,6 +28,17 @@ function IsAppUrl (req) {
   if (RoutePolicy.classify(url)) {
     return false
   }
+
+  if(Meteor.registeredUrls) {
+    matched = false;
+    Meteor.registeredUrls.forEach(function(one) {
+      if(url.indexOf(one) === 0) { matched = true; }
+    });
+    if(matched) {
+      return false;
+    }
+  }
+
   return true
 }
 

@@ -1,6 +1,6 @@
 Package.describe({
   name: 'mrmasly:vue',
-  version: '0.2.8',
+  version: '0.3.0',
   summary: 'Akryum:vue-meteor all in one',
   git: 'https://github.com/mrMasly/meteor-vue',
   documentation: 'README.md'
@@ -36,7 +36,7 @@ Package.registerBuildPlugin({
     'generate-source-map': '0.0.5',
     'autoprefixer': '6.7.5',
     'vue-template-compiler': '2.3.3',
-    'vue-template-es2015-compiler': '1.5.1',
+    'vue-template-es2015-compiler': '1.5.1'
   }
 });
 
@@ -80,7 +80,10 @@ Npm.depends({
   'vue-server-renderer': '2.3.3',
   'vue-ssr-html-stream': '2.2.0',
   'cookie-parser': '1.4.1',
-  'cheerio': '0.20.0'
+  'cheerio': '0.20.0',
+
+  // dev-client
+  'socket.io-client': '1.4.6'
 });
 
 
@@ -90,11 +93,16 @@ Package.onUse(function(api) {
   api.use('coffeescript@1.12.3_1');
   api.use('akryum:npm-check@0.0.3');
   api.use('isobuild:compiler-plugin@1.0.0');
-  api.use('meteorhacks:async@1.0.0');
-  api.use('akryum:vue-component-dev-server@0.0.5');
-  api.use('akryum:vue-component-dev-client@0.2.8');
 
-  // api.use('akryum:vue-ssr@0.1.0');
+  // dev-client
+  api.use('reload');
+  api.use('autoupdate');
+  api.use('reactive-var');
+  api.addFiles('./dev/client/index.js', 'client');
+
+  // dev-server
+  api.addFiles('./dev/server/index.js', 'server');
+
 
   api.addAssets([
     'public/gears.svg'
