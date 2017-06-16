@@ -178,6 +178,11 @@ function patchResWrite(originalWrite, html, meta) {
 
 function addMeta(data, meta) {
 
+  // html
+  html = "data-vue-meta-server-rendered "+meta.htmlAttrs.text()
+  data = data.replace('<html', '<html '+html)
+
+  // head
   head = ""
   head += "\n"+meta.meta.text()
   head += "\n"+meta.title.text()
@@ -185,13 +190,11 @@ function addMeta(data, meta) {
   head += "\n"+meta.style.text()
   head += "\n"+meta.script.text()
   head += "\n"+meta.noscript.text()
-
   if(Meteor.__styles != null) {
     Meteor.__styles.forEach((style) => {
       head += style;
     });
   }
-
   data = data.replace('</head>', head+'</head>')
   return data
 }
