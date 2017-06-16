@@ -882,7 +882,7 @@ function _refresh (options) {
    */
   return function refresh () {
     var info = _getMetaInfo(options)(this.$root);
-		if(Meteor.isCliet) {
+		if(Meteor.isClient) {
     	_updateClientMetaInfo(options)(info);
 		}
     return info
