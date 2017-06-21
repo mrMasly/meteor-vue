@@ -1,6 +1,6 @@
 Package.describe({
   name: 'mrmasly:vue',
-  version: '0.3.0',
+  version: '0.3.1',
   summary: 'Akryum:vue-meteor all in one',
   git: 'https://github.com/mrMasly/meteor-vue',
   documentation: 'README.md'
@@ -80,29 +80,19 @@ Npm.depends({
   'vue-server-renderer': '2.3.3',
   'vue-ssr-html-stream': '2.2.0',
   'cookie-parser': '1.4.1',
-  'cheerio': '0.20.0',
-
-  // dev-client
-  'socket.io-client': '1.4.6'
+  'cheerio': '0.20.0'
 });
 
 
 Package.onUse(function(api) {
   api.versionsFrom('1.4.3.2');
+  
   api.use('ecmascript@0.6.3');
   api.use('coffeescript@1.12.3_1');
   api.use('akryum:npm-check@0.0.3');
   api.use('isobuild:compiler-plugin@1.0.0');
 
-  // dev-client
-  api.use('reload');
-  api.use('autoupdate');
-  api.use('reactive-var');
-  api.addFiles('./dev/client/index.js', 'client');
-
-  // dev-server
-  api.addFiles('./dev/server/index.js', 'server');
-
+  api.use('mrmasly:vue-hot@0.0.1');
 
   api.addAssets([
     'public/gears.svg'
